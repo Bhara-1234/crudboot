@@ -2,19 +2,78 @@
 <html>
 
 <head>
-	<meta charset="ISO-8859-1">
-	<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>Employee Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 200px;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        input[type="button"] {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .btn-container {
+            margin-top: 10px;
+        }
+
+        .btn-container button {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 
 <body>
-	<label> EmpNo:</label><input id="empno" type="text">
-
-	<label> Name:</label><input id="ename" type="text">
-	<label> Department:</label><input id="deptno" type="text">
-	<label> Job:</label><input id="job" type="text">
-	<label> Salary:</label><input id="sal" type="text">
-	<input type="button" onclick="getAll()" value="ShowEmployees">
-	<div id="tab"></div>
+    <label> EmpNo:</label><input id="empno" type="text"><br>
+    <label> Name:</label><input id="ename" type="text"><br>
+    <label> Department:</label><input id="deptno" type="text"><br>
+    <label> Job:</label><input id="job" type="text"><br>
+    <label> Salary:</label><input id="sal" type="text"><br>
+    <div class="btn-container">
+        <input type="button" onclick="getAll()" value="Show Employees">
+        <input type="button" onclick="addEmp()" value="Add Employee">
+        <input type="button" onclick="save()" value="Save">
+    </div>
+    <div id="tab"></div>
 
 	<script>
 		function getAll() {
@@ -24,15 +83,15 @@
 			xhr.open('GET', "/employees", true)
 			xhr.onreadystatechange = function () {
 				if (xhr.readyState === 4) {
-					if (xhr.status ===200) {
+					if (xhr.status === 200) {
 						var data = JSON.parse(xhr.responseText);
 						var div = document.getElementById("tab");
-						div.innerHTML="";
+						div.innerHTML = "";
 						var table = document.createElement("table");
-						table.border=1;
-						
+						table.border = 1;
+
 						data.forEach(function (x) {
-                           
+
 							var tr1 = document.createElement("tr");
 							var td1 = document.createElement("td");
 							var td2 = document.createElement("td");
@@ -43,22 +102,26 @@
 							var td7 = document.createElement("td");
 							var del = document.createElement("button");
 							var update = document.createElement("button");
-							but1.textContent="Delete";
-							but2.textContent="Update";
-							td6.appendChild(but1);
-							td7.appendChild(but2);
-							/*del.onclick=function(x){
-								deleEmp(x.empno);
-								
-							}*/
-							
 
-							table.appendChild(tr1);
+
 							td1.textContent = x.empno;
 							td2.textContent = x.dept;
 							td3.textContent = x.job;
 							td4.textContent = x.name;
 							td5.textContent = x.salary;
+							del.textContent = "Delete";
+							update.textContent = "Update";
+
+
+							del.onclick = function () {
+								deleEmp(x.empno);
+
+							}
+							update.onclick = function(){
+								updateEmp(x);
+							}
+							td7.appendChild(update);
+							td6.appendChild(del);
 							tr1.appendChild(td1);
 							tr1.appendChild(td2);
 							tr1.appendChild(td3);
@@ -66,6 +129,8 @@
 							tr1.appendChild(td5);
 							tr1.appendChild(td6);
 							tr1.appendChild(td7);
+
+
 							table.appendChild(tr1);
 
 						});
@@ -81,20 +146,91 @@
 
 
 		}
-	/*	function deleEmp(id){
-			var xhr= XMLHttpRequest();
-			xhr.open("DELETE","/employees/"+id,true);
-			xhr.onreadystatechange=function(){
-				if(xhr.readyState===4){
-					if(xhr.status===200){
+		function deleEmp(id) {
+			var xhr = new XMLHttpRequest();
+
+			xhr.open("DELETE", "/employees/" + id, true);
+
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4) {
+					if (xhr.status === 200) {
 						alert("deleted");
 					}
 				}
-			
+
 			}
-			
+			xhr.send();
 			getAll();
-		}*/
+		}
+function addEmp() {
+    var data = {
+        empno: document.getElementById("empno").value,
+        name: document.getElementById("ename").value,
+        dept: document.getElementById("deptno").value,
+        job: document.getElementById("job").value,
+        salary: document.getElementById("sal").value
+    };
+
+    var Jdata = JSON.stringify(data);
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("POST", "/employees", true);
+     xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                // Request was successful, handle the response here if needed
+                getAll();
+            } else {
+                // Handle errors here
+                console.error("Error: " + xhr.status + " - " + xhr.statusText);
+            }
+        }
+    };
+
+    xhr.onerror = function () {
+        // Handle network errors here
+        console.error("Network error occurred");
+    };
+
+    xhr.send(Jdata);
+}
+ function updateEmp(emp){
+	 document.getElementById("empno").value = emp.empno;
+	 document.getElementById("ename").value = emp.name;
+	 document.getElementById("deptno").value = emp.dept;
+	 document.getElementById("job").value = emp.job;
+	 document.getElementById("sal").value = emp.salary;
+	 
+ }
+
+function save(){
+	var fieldData ={
+		empno:document.getElementById("empno").value,
+		name:document.getElementById("ename").value,
+		dept:document.getElementById("deptno").value,
+		job:document.getElementById("job").value,
+		sal: document.getElementById("sal").value
+	}
+	var  Json = JSON.stringify(fieldData);
+	
+	
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open("PUT","/employees",true);
+	xhr.setRequestHeader("Content-Type", "application/json");
+	xhr.onreadystatechange= function(){
+		if(xhr.readyState===4){
+			if(xhr.status===200){
+				
+			}
+		}
+	}
+	xhr.send(Json);
+	getAll();
+}
+
 	</script>
 </body>
 
