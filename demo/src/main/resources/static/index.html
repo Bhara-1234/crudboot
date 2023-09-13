@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Insert title here</title>
+</head>
+
+<body>
+	<label> EmpNo:</label><input id="empno" type="text">
+
+	<label> Name:</label><input id="ename" type="text">
+	<label> Department:</label><input id="deptno" type="text">
+	<label> Job:</label><input id="job" type="text">
+	<label> Salary:</label><input id="sal" type="text">
+	<input type="button" onclick="getAll()" value="ShowEmployees">
+	<div id="tab"></div>
+
+	<script>
+		function getAll() {
+
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', "/employees", true)
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4) {
+					if (xhr.status ===200) {
+						var data = JSON.parse(xhr.responseText);
+						var div = document.getElementById("tab");
+						div.innerHTML="";
+						var table = document.createElement("table");
+						table.border=1;
+						
+						data.forEach(function (x) {
+                           
+							var tr1 = document.createElement("tr");
+							var td1 = document.createElement("td");
+							var td2 = document.createElement("td");
+							var td3 = document.createElement("td");
+							var td4 = document.createElement("td");
+							var td5 = document.createElement("td");
+							var td6 = document.createElement("td");
+							var td7 = document.createElement("td");
+							var del = document.createElement("button");
+							var update = document.createElement("button");
+							but1.textContent="Delete";
+							but2.textContent="Update";
+							td6.appendChild(but1);
+							td7.appendChild(but2);
+							/*del.onclick=function(x){
+								deleEmp(x.empno);
+								
+							}*/
+							
+
+							table.appendChild(tr1);
+							td1.textContent = x.empno;
+							td2.textContent = x.dept;
+							td3.textContent = x.job;
+							td4.textContent = x.name;
+							td5.textContent = x.salary;
+							tr1.appendChild(td1);
+							tr1.appendChild(td2);
+							tr1.appendChild(td3);
+							tr1.appendChild(td4);
+							tr1.appendChild(td5);
+							tr1.appendChild(td6);
+							tr1.appendChild(td7);
+							table.appendChild(tr1);
+
+						});
+						div.append(table);
+					}
+					else {
+						alert("failed to get employee list");
+					}
+				}
+
+			};
+			xhr.send();
+
+
+		}
+	/*	function deleEmp(id){
+			var xhr= XMLHttpRequest();
+			xhr.open("DELETE","/employees/"+id,true);
+			xhr.onreadystatechange=function(){
+				if(xhr.readyState===4){
+					if(xhr.status===200){
+						alert("deleted");
+					}
+				}
+			
+			}
+			
+			getAll();
+		}*/
+	</script>
+</body>
+
+</html>
